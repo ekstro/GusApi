@@ -280,6 +280,19 @@ class GusApi
             throw new InvalidReportTypeException(sprintf('Invalid report type: "%s", use one of allowed type: (%s)', $reportName, implode(', ', BulkReportTypes::REPORTS)));
         }
 
+        if ($date->getTimezone()->getName() !== self::SERVICE_TIME_ZONE) {
+            trigger_error(
+                sprintf(
+                    'Passing a date with timezone "%s" to "%s::getBulkReport()" is deprecated. Use "%s" timezone instead. In the next major version dates will be converted to "%s" before formatting.',
+                    $date->getTimezone()->getName(),
+                    self::class,
+                    self::SERVICE_TIME_ZONE,
+                    self::SERVICE_TIME_ZONE
+                ),
+                E_USER_DEPRECATED
+            );
+        }
+
         return $this->apiClient->getBulkReport(
             new GetBulkReport($date->format('Y-m-d'), $reportName),
             $this->sessionId

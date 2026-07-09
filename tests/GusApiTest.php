@@ -297,20 +297,42 @@ final class GusApiTest extends TestCase
     public function testGetBulkReport(): void
     {
         $this->loginApiWithSessionId('12sessionid21');
+        $deprecationMessages = [];
+        set_error_handler(static function (int $severity, string $message) use (&$deprecationMessages): bool {
+            if (E_USER_DEPRECATED !== $severity) {
+                return false;
+            }
+
+            $deprecationMessages[] = $message;
+
+            return true;
+        });
+
         $this->apiClient
             ->expects(self::once())
             ->method('getBulkReport')
             ->with(new GetBulkReport('2025-10-05', 'BIR11NowePodmiotyPrawneOrazDzialalnosciOsFizycznych'))
             ->willReturn(['test' => 'test']);
 
+        try {
+            self::assertSame(
+                [
+                    'test' => 'test',
+                ],
+                $this->api->getBulkReport(
+                    new \DateTimeImmutable('2025-10-05 01:00:00', new \DateTimeZone('Asia/Singapore')),
+                    'BIR11NowePodmiotyPrawneOrazDzialalnosciOsFizycznych'
+                )
+            );
+        } finally {
+            restore_error_handler();
+        }
+
         self::assertSame(
             [
-                'test' => 'test',
+                'Passing a date with timezone "Asia/Singapore" to "GusApi\GusApi::getBulkReport()" is deprecated. Use "Europe/Warsaw" timezone instead. In the next major version dates will be converted to "Europe/Warsaw" before formatting.',
             ],
-            $this->api->getBulkReport(
-                new \DateTimeImmutable('2025-10-05 01:00:00', new \DateTimeZone('Asia/Singapore')),
-                'BIR11NowePodmiotyPrawneOrazDzialalnosciOsFizycznych'
-            )
+            $deprecationMessages
         );
     }
 
