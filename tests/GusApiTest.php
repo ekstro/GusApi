@@ -297,10 +297,11 @@ final class GusApiTest extends TestCase
     public function testGetBulkReport(): void
     {
         $this->loginApiWithSessionId('12sessionid21');
+
         $this->apiClient
             ->expects(self::once())
             ->method('getBulkReport')
-            ->with(new GetBulkReport('2025-10-05', 'BIR11NowePodmiotyPrawneOrazDzialalnosciOsFizycznych'))
+            ->with(new GetBulkReport('2025-10-04', 'BIR11NowePodmiotyPrawneOrazDzialalnosciOsFizycznych'))
             ->willReturn(['test' => 'test']);
 
         self::assertSame(

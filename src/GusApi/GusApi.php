@@ -281,7 +281,11 @@ class GusApi
         }
 
         return $this->apiClient->getBulkReport(
-            new GetBulkReport($date->format('Y-m-d'), $reportName),
+            new GetBulkReport(
+                $date->setTimezone(new DateTimeZone(self::SERVICE_TIME_ZONE))
+                    ->format('Y-m-d'),
+                $reportName
+            ),
             $this->sessionId
         );
     }
